@@ -408,10 +408,10 @@ const handleOnClick = async () => {
       {/* ===================== Timein Section ==================== */}
 
       {!transFail && !transStarted && !transSuccess && (
-        <div className="bg-white h-[350px] border rounded-[1.625rem] w-full sm:h-[520px] sm:w-[500px]">
+        <div className="bg-white h-[350px] border rounded-[1.625rem] w-full sm:h-[450px] sm:w-[450px]">
           <div className="relative py-1 sm:py-3">
             {isTimeout ? (
-              <div className="relative py-1 sm:py-1">
+              <div className="relative ">
                 <FaArrowLeftLong
                   className="absolute left-[1.25rem] top-1/2 -translate-y-1/2 text-activeHead cursor-pointer"
                   onClick={() => setShowPlaceOrder(false)}
@@ -445,15 +445,15 @@ const handleOnClick = async () => {
             </div>
 
             {/* Sell div */}
-            <div className="bg-gray-100 rounded-3xl w-1/2 h-[150px] flex flex-col items-center justify-center">
+            <div className="bg-gray-100 rounded-3xl w-1/2 h-[120px] flex flex-col items-center justify-center">
               <div>
                 <img
                   src={sellToken?.logo}
                   alt=""
-                  className="h-12 w-12 rounded-full"
+                  className="h-8 w-8 rounded-full"
                 />
               </div>
-              <div className="mt-4 text-center">
+              <div className="mt-2 text-center">
                 <p className="text-activeHead">
                   {sellInpValue} {sellToken?.symbol}
                 </p>
@@ -462,15 +462,15 @@ const handleOnClick = async () => {
             </div>
 
             {/* Buy div */}
-            <div className="bg-gray-100 rounded-3xl w-1/2 h-[150px] flex flex-col items-center justify-center">
+            <div className="bg-gray-100 rounded-3xl w-1/2 h-[120px] flex flex-col items-center justify-center">
               <div>
                 <img
                   src={buyToken?.logo}
                   alt=""
-                  className="h-12 w-12 rounded-full"
+                  className="h-8 w-8 rounded-full"
                 />
               </div>
-              <div className="mt-4 text-center">
+              <div className="mt-2 text-center">
                 <p className="text-activeHead">
                   {buyAmount} {buyToken?.symbol}
                 </p>
@@ -513,7 +513,7 @@ const handleOnClick = async () => {
           </div>
 
           {/* Further details */}
-          <div className="gap-2 flex flex-col mt-7">
+          <div className="gap-2 flex flex-col mt-3">
             {/* Route */}
             <div className="flex pl-[1.50rem] pr-[1.25rem] justify-between text-sm">
               <div>

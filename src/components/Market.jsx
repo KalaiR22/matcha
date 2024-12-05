@@ -470,16 +470,13 @@ console.log(walletAddress)
             clearData={clearData}
           />
         )}
-        <div className="bg-white h-[350px] border rounded-[1.625rem] w-full sm:h-[500px] sm:w-[500px]">
+        <div className="bg-white h-[350px] border rounded-[1.625rem] w-full sm:h-[450px] sm:w-[450px]">
           <div className="flex justify-between pl-[1.25rem] py-1 pr-[0.75rem] border-b items-center sm:py-3">
             <div className="flex gap-[1.5rem] font-medium sm:text-[17px] text-xs ">
               <button className="text-activeHead">Market</button>
-              <button className="text-inactiveHead">Limit</button>
-              <button className="text-inactiveHead">Cross chain</button>
+             
             </div>
-            <div className="sm:w-[40px] sm:h-[36px] flex items-center justify-center w-[30px] h-[26px]">
-              <LuSettings className="h-4 w-4 text-[#22262a]" />
-            </div>
+           
           </div>
 
           <div>
@@ -512,11 +509,11 @@ console.log(walletAddress)
                 />
               )}
 
-              <div className="sell-input mb-[0.5rem] flex justify-between items-center">
+              <div className="sell-input mb-[0.3rem] flex justify-between items-center">
                 <input
                   type="number"
                   placeholder="0.0"
-                  className="pr-4 overflow-ellipsis w-[75%] sm:text-[32px] font-semibold focus:outline-none text-[20px]"
+                  className="pr-4 overflow-ellipsis w-[75%] sm:text-[25px] font-semibold focus:outline-none text-[20px]"
                   value={sellInputValue}
                   onChange={(e) => handleSellInputChange(e)}
                   onKeyPress={handleKeyPress}
@@ -571,11 +568,11 @@ console.log(walletAddress)
                 />
               )}
 
-              <div className="buy-input mb-[0.5rem] flex justify-between items-center">
+              <div className="buy-input mb-[0.3rem] flex justify-between items-center">
                 <input
                   type="number"
                   placeholder="0.0"
-                  className="pr-4 overflow-ellipsis w-[75%] sm:text-[32px] font-semibold focus:outline-none text-[20px]"
+                  className="pr-4 overflow-ellipsis w-[75%] sm:text-[25px] font-semibold focus:outline-none text-[20px]"
                   value={buyInputValue}
                   onChange={handleBuyInputChange}
                   onKeyPress={handleKeyPress}
@@ -597,7 +594,7 @@ console.log(walletAddress)
             {/* Divider */}
             <div className="relative w-full h-[1px] bg-[#f1f2f4]"></div>
             {!buyInputValue && walletAddress && (
-              <div className="mx-2 my-5">
+              <div className="mx-2 my-3">
                 <button
                   disabled
                   className="bg-[#f1f2f4] text-[#5e6773]  font-medium  border-[#d5d9dd] py-3  rounded-full  w-full "
