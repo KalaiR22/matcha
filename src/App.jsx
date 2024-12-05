@@ -16,14 +16,14 @@ function App() {
   return (
     <>
       <div className="w-full h-screen">
-      <Market />
+      {/* <Market /> */}
       {/* <ConfirmDenied/> */}
         {/* <TransactionCompleted/> */}
         {/* <TransactionPending/> */}
       </div>
       {/* <SelectToken/> */}
       {/* <SearchBar/> */}
-      {/* <PlaceOrder/> */}
+      <PlaceOrder/>
     </>
   );
 }
