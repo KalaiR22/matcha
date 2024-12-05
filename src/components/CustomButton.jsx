@@ -5,14 +5,7 @@ export const CustomButton = ({ sellToken, sellInput, setShowPlaceOrder }) => {
   const [isMatching, setIsMatching] = useState(false);
   const [isBalanceSufficient, setIsBalanceSufficient] = useState(true);
 
-  const handleReviewOrder = () => {
-    // Store the selected tokens in localStorage
-    // localStorage.setItem("buySelectedToken", JSON.stringify(buyToken));
-    // localStorage.setItem("sellSelectedToken", JSON.stringify(sellToken));
-  setShowPlaceOrder(true)
-    // Navigate to the PlaceOrder page
-    // Using window.location for redirection
-  };
+ 
 
   return (
     <ConnectButton.Custom>
@@ -56,7 +49,7 @@ export const CustomButton = ({ sellToken, sellInput, setShowPlaceOrder }) => {
                 userSelect: "none",
               },
             })}
-            className="w-full"
+            className="w-full py-4 px-2"
           >
             {(() => {
               if (!connected) {
@@ -115,32 +108,10 @@ export const CustomButton = ({ sellToken, sellInput, setShowPlaceOrder }) => {
                       )}
                       {chain.name}
                     </button> */}
-                    <button
-                      onClick={handleReviewOrder}
-                      className="bg-gray-800 text-white py-2 px-4 rounded-full w-full"
-                      type="button"
-                    >
-                      {/* {account.displayName}
-                      {account.displayBalance
-                        ? ` (${account.displayBalance})`
-                        : ''} */}
-                      Review order
-                    </button>
+                  
+                  
                   </div>
-                  {isMatching ? (
-                    <p className="text-green-500 text-sm">
-                      Token matches connected wallet.
-                    </p>
-                  ) : (
-                    <p className="text-red-500 text-sm">
-                      Token does not match connected wallet.
-                    </p>
-                  )}
-                  {!isBalanceSufficient && (
-                    <p className="text-red-500 text-sm">
-                      Insufficient balance for transaction.
-                    </p>
-                  )}
+                
                 </div>
               );
             })()}

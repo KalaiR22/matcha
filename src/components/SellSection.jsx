@@ -2,7 +2,14 @@ import React, { useState, useEffect } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import SellTokenList from "./SellTokenList";
 
-const SellSection = ({ autoShowSecondSell }) => {
+const SellSection = ({
+  autoShowSecondSell,
+  sellInputValue,
+  setSellInputValue,
+  setBuyInputValue,
+  balance,
+  clearData
+}) => {
   const [showSearchBar, setShowSearchBar] = useState(false);
   const [sellSelectedToken, setSellSelectedToken] = useState(null);
   const [showSecondSell, setShowSecondSell] = useState(autoShowSecondSell);
@@ -18,7 +25,10 @@ const SellSection = ({ autoShowSecondSell }) => {
 
   useEffect(() => {
     if (sellSelectedToken) {
-      localStorage.setItem("sellSelectedToken", JSON.stringify(sellSelectedToken));
+      localStorage.setItem(
+        "sellSelectedToken",
+        JSON.stringify(sellSelectedToken)
+      );
     } else {
       localStorage.removeItem("sellSelectedToken");
     }
@@ -67,23 +77,37 @@ const SellSection = ({ autoShowSecondSell }) => {
             <img
               src={sellSelectedToken.logo}
               alt={sellSelectedToken.symbol}
-              className="sm:w-6 sm:h-6 w-4 h-4"
+              className="sm:w-6 sm:h-6 w-4 h-4 rounded-full"
             />
             <p className="text-xs sm:text-base">{sellSelectedToken.symbol}</p>
             <IoIosArrowDown className="justify-center items-center ml-1 mt-1 text-xs sm:text-base" />
           </div>
-          {showSecondSell && (
-            <div className="flex justify-end gap-[0.375rem] items-center">
-              {["50%", "Max"].map((label) => (
-                <button
-                  key={label}
-                  className="bg-[#f1f2f4] text-[#17171c] sm:text-[14px] text-xs font-[500] py-[.30rem] opacity-[0.5] rounded-[1.625rem] border px-[.75rem] border-[#d5d9dd]"
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          )}
+          <div></div>
+
+          <div className="flex justify-end gap-[0.375rem] items-center">
+            {sellInputValue > 0 && (
+              <button
+                onClick={clearData}
+                className="bg-[#f1f2f4] text-[#17171c] sm:text-[14px] text-xs font-[500] py-[.30rem]  rounded-[1.625rem] border px-[.75rem] border-[#d5d9dd]"
+              >
+                clear
+              </button>
+            )}
+            {showSecondSell && (
+              <div className="flex justify-end gap-[0.375rem] items-center">
+                {["Max"].map((label) => (
+                  <button
+                    key={label}
+                    disabled={!balance?.sellTokenBalance}
+                    onClick={() => setSellInputValue(balance?.sellTokenBalance)}
+                    className="bg-[#f1f2f4] text-[#17171c] sm:text-[14px] text-xs font-[500] py-[.30rem]  rounded-[1.625rem] border px-[.75rem] border-[#d5d9dd]"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
 

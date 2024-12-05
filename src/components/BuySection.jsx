@@ -52,7 +52,7 @@ const BuySection = ({ autoShowSecondBuy }) => {
             <img
               src={token.logoURI}
               alt={token.symbol}
-              className="sm:w-6 sm:h-6 w-4 h-4"
+              className="sm:w-6 sm:h-6 w-4 h-4 rounded-full"
             />
             <p className="text-xs sm:text-base">{token.symbol}</p>
             <IoIosArrowDown className="justify-center items-center ml-1 mt-1 text-xs sm:text-base" />
@@ -78,7 +78,7 @@ const BuySection = ({ autoShowSecondBuy }) => {
             <img
               src={buySelectedToken.logo}
               alt={buySelectedToken.symbol}
-              className="sm:w-6 sm:h-6 w-4 h-4"
+              className="sm:w-6 sm:h-6 w-4 h-4 rounded-full"
             />
             <p className="text-xs sm:text-base">{buySelectedToken.symbol}</p>
             <IoIosArrowDown className="justify-center items-center ml-1 mt-1 text-xs sm:text-base" />
@@ -101,7 +101,7 @@ const BuySection = ({ autoShowSecondBuy }) => {
       {showSearchBar && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
           <BuyTokenList
-            setBuySelectedToken={handleTokenSelect} 
+            setBuySelectedToken={setBuySelectedToken} 
             setShowSearchBar={setShowSearchBar}
           />
         </div>

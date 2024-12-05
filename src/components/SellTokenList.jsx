@@ -6,7 +6,7 @@ import { IoMdClose } from "react-icons/io";
 import { IoIosArrowDown } from "react-icons/io";
 
 const addresses = [
-  "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+  "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
   "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
   "0x0b3e328455c4059EEb9e3f84b5543F74E24e7E1b",
   "0xB1a03EdA10342529bBF8EB700a06C60441fEf25d",
@@ -17,7 +17,6 @@ const addresses = [
   "0x768BE13e1680b5ebE0024C42c896E3dB59ec0149",
   "0x2Da56AcB9Ea78330f947bD57C54119Debda7AF71",
   "0xA88594D404727625A9437C3f886C7643872296AE",
-
 ];
 
 const SellTokenList = ({ setSellSelectedToken, setShowSearchBar, closeModal }) => {
@@ -62,7 +61,7 @@ const SellTokenList = ({ setSellSelectedToken, setShowSearchBar, closeModal }) =
               className='w-full py-1 focus:outline-none text-xs sm:text-[15px]'
             />
           </div>
-          <div className='border p-2 border-none' onClick={closeModal}>
+          <div className='border p-2 border-none' onClick={()=> setShowSearchBar(false)}>
             <IoMdClose className='sm:w-5 sm:h-5 w-4 h-4 cursor-pointer' />
           </div>  
         </div>

@@ -20,9 +20,7 @@ const TransactionPending = () => {
     }
   }, [timeLeft]);
 
-  if (isCompleted) {
-    return <TransactionCompleted/>; // Render TransactionCompleted when done
-  }
+  
 
 
   return (
@@ -45,16 +43,18 @@ const TransactionPending = () => {
                 cy="18"
                 r="16"
                 fill="none"
-                stroke="#3b82f6"
+                stroke="#5932f3"
                 strokeWidth="0.5"
                 strokeDasharray="100"
                 strokeDashoffset={100 - (100 / 6) * (6 - timeLeft)}
                 strokeLinecap="round"
-                style={{ transition: 'stroke-dashoffset 1s linear' }}
+                style={{ transition: "stroke-dashoffset 1s linear" }}
               />
             </svg>
             <div className="absolute inset-0 flex justify-center items-center text-3xl font-bold text-black flex-col">
-              <p className="mb-1 text-inactiveHead text-xs font-medium">Time Left</p>
+              <p className="mb-1 text-inactiveHead text-xs font-medium">
+                Time Left
+              </p>
               {`00:0${timeLeft}`}
             </div>
           </div>
@@ -62,13 +62,18 @@ const TransactionPending = () => {
 
         {/* pending */}
         <div>
-          <p className='text-activeHead font-semibold text-lg'>Transaction pending....</p>
+          <p className="text-activeHead font-semibold text-lg">
+            Transaction pending....
+          </p>
         </div>
 
         {/* button */}
-        <div className='pl-[2.50rem]  pr-[2.25rem] mt-8 w-full'>
-                <button className='bg-gray-100 sm:mt-2 sm:text-[16px] font-[500]  rounded-[1.625rem] w-full flex items-center justify-center h-12 text-[15px] text-activeHead '> See details</button>
-            </div>
+        <div className="pl-[2.50rem]  pr-[2.25rem] mt-8 w-full">
+          <button className="bg-gray-100 sm:mt-2 sm:text-[16px] font-[500]  rounded-[1.625rem] w-full flex items-center justify-center h-12 text-[15px] text-activeHead ">
+            {" "}
+            See details
+          </button>
+        </div>
       </div>
     </div>
   );
