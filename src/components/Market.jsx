@@ -470,7 +470,7 @@ console.log(walletAddress)
             clearData={clearData}
           />
         )}
-        <div className="bg-white h-[350px] border rounded-[1.625rem] w-full sm:h-[450px] sm:w-[450px]">
+        <div className="bg-white h-[350px] border rounded-[1.625rem] w-full sm:h-[410px] sm:w-[450px]">
           <div className="flex justify-between pl-[1.25rem] py-1 pr-[0.75rem] border-b items-center sm:py-3">
             <div className="flex gap-[1.5rem] font-medium sm:text-[17px] text-xs ">
               <button className="text-activeHead">Market</button>
@@ -480,7 +480,7 @@ console.log(walletAddress)
           </div>
 
           <div>
-            <div className="px-[1.5rem] sm:py-[1rem] flex flex-col sm:space-y-4 space-y-2 py-[.55rem]">
+            <div className="px-[1.5rem] sm:py-[1rem] flex flex-col sm:space-y-2 space-y-1 py-1">
               <div className="flex justify-between items-center">
                 <p className="font-semibold sm:text-[14px] text-[12px] text-sell">
                   Sell
@@ -539,7 +539,7 @@ console.log(walletAddress)
               </div>
             </div>
 
-            <div className="px-[1.5rem] sm:py-[1rem] flex flex-col sm:space-y-4 -mt-5 space-y-2 py-[.55rem]">
+            <div className="px-[1.5rem] sm:py-[1rem] flex flex-col sm:space-y-2 -mt-5 space-y-2 py-1">
               <div className="flex justify-between items-center">
                 <p className="font-semibold sm:text-[14px] text-[12px] text-sell">
                   Buy
@@ -597,7 +597,7 @@ console.log(walletAddress)
               <div className="mx-2 my-3">
                 <button
                   disabled
-                  className="bg-[#f1f2f4] text-[#5e6773]  font-medium  border-[#d5d9dd] py-3  rounded-full  w-full "
+                  className="bg-[#f1f2f4] text-[#5e6773]  font-medium  border-[#d5d9dd] py-2.5  rounded-full  w-full "
                 >
                   Review Order
                 </button>
@@ -605,11 +605,11 @@ console.log(walletAddress)
             )}
             {!walletAddress && <CustomButton />}
             {sellInputValue > 0 && buyInputValue && walletAddress && (
-              <div className="px-[1.5rem] py-5 justify-center flex items-center">
+              <div className="px-[1.5rem] py-3 justify-center flex items-center">
                 {allowance === BigInt(0) ? (
                   <button
                     type="button"
-                    className="bg-gray-800 text-white py-3 px-4 rounded-full w-full"
+                    className="bg-gray-800 text-white py-2.5 px-4 rounded-full w-full"
                     onClick={async () => {
                       try {
                         await writeContract({
@@ -632,7 +632,7 @@ console.log(walletAddress)
                 ) : (
                   <button
                     onClick={handleReviewOrder}
-                    className="bg-gray-800 text-white py-3 px-4 rounded-full w-full"
+                    className="bg-gray-800 text-white py-2.5 px-4 rounded-full w-full"
                     type="button"
                   >
                     {/* {account.displayName}
