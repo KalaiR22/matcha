@@ -8,39 +8,29 @@ const SellSection = ({
   setSellInputValue,
   setBuyInputValue,
   balance,
-  clearData
+  clearData,
+  setSellToken,
+  sellToken,
+   SwapSellBuy,
+   showsell
 }) => {
   const [showSearchBar, setShowSearchBar] = useState(false);
-  const [sellSelectedToken, setSellSelectedToken] = useState(null);
+
   const [showSecondSell, setShowSecondSell] = useState(autoShowSecondSell);
+    const [buySelectedToken, setBuySelectedToken] = useState(null);
+ 
+ console.log(sellToken)
 
-  useEffect(() => {
-    const storedToken = localStorage.getItem("sellSelectedToken");
-    if (storedToken) setSellSelectedToken(JSON.parse(storedToken));
-  }, []);
 
-  useEffect(() => {
-    setShowSecondSell(autoShowSecondSell);
-  }, [autoShowSecondSell]);
-
-  useEffect(() => {
-    if (sellSelectedToken) {
-      localStorage.setItem(
-        "sellSelectedToken",
-        JSON.stringify(sellSelectedToken)
-      );
-    } else {
-      localStorage.removeItem("sellSelectedToken");
-    }
-  }, [sellSelectedToken]);
+  
 
   return (
     <div>
-      {!sellSelectedToken ? (
+      {!sellToken?.address ? (
         <div className="flex justify-between">
           <button
             onClick={() => setShowSearchBar(true)}
-            className="bg-selectTokenbg sm:text-base font-medium text-white sm:px-3 py-1.5 sm:py-2 rounded-[1.625rem] flex text-xs px-2"
+            className="bg-selectTokenbg sm:text-sm font-medium text-white sm:px-2 py-1.5 sm:py-1.5 rounded-[1.625rem] flex text-xs px-2"
           >
             Select Token
             <IoIosArrowDown className="justify-center items-center ml-1 mt-1 text-xs sm:text-base" />
@@ -55,9 +45,9 @@ const SellSection = ({
               />
             ))}
           </div>
-          {showSecondSell && (
+         
             <div className="flex justify-end gap-[0.375rem] items-center">
-              {["50%", "Max"].map((label) => (
+              {["Max"].map((label) => (
                 <button
                   key={label}
                   className="bg-[#f1f2f4] text-[#17171c] sm:text-[14px] text-xs font-[500] py-[.30rem] opacity-[0.5] rounded-[1.625rem] border px-[.75rem] border-[#d5d9dd]"
@@ -66,20 +56,20 @@ const SellSection = ({
                 </button>
               ))}
             </div>
-          )}
+          
         </div>
       ) : (
         <div className="flex justify-between">
           <div
-            className="bg-gray-50 border-gray-200 hover:bg-gray-100 border sm:text-base font-medium text-black sm:px-3 py-1.5 sm:py-2 rounded-[1.625rem] flex gap-2 cursor-pointer text-xs px-2"
+            className="bg-gray-50 border-gray-200 items-center hover:bg-gray-100 border sm:text-base font-medium text-black sm:px-2 py-1.5 sm:py-1 rounded-[1.625rem] flex gap-2 cursor-pointer text-xs px-2"
             onClick={() => setShowSearchBar(true)}
           >
             <img
-              src={sellSelectedToken.logo}
-              alt={sellSelectedToken.symbol}
+              src={sellToken.logo}
+              alt={sellToken.symbol}
               className="sm:w-6 sm:h-6 w-4 h-4 rounded-full"
             />
-            <p className="text-xs sm:text-base">{sellSelectedToken.symbol}</p>
+            <p className="text-xs sm:text-base">{sellToken.symbol}</p>
             <IoIosArrowDown className="justify-center items-center ml-1 mt-1 text-xs sm:text-base" />
           </div>
           <div></div>
@@ -93,7 +83,7 @@ const SellSection = ({
                 clear
               </button>
             )}
-            {showSecondSell && (
+          
               <div className="flex justify-end gap-[0.375rem] items-center">
                 {["Max"].map((label) => (
                   <button
@@ -106,7 +96,7 @@ const SellSection = ({
                   </button>
                 ))}
               </div>
-            )}
+          
           </div>
         </div>
       )}
@@ -114,8 +104,10 @@ const SellSection = ({
       {showSearchBar && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
           <SellTokenList
-            setSellSelectedToken={setSellSelectedToken}
             setShowSearchBar={setShowSearchBar}
+            SwapSellBuy={SwapSellBuy}
+            setSellToken={setSellToken}
+            clearData={clearData}
           />
         </div>
       )}

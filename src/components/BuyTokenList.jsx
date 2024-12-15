@@ -20,10 +20,11 @@ const addresses = [
 ];
 
 const BuyTokenList = ({
-  setBuySelectedToken,
+  setBuyToken,
   setShowSearchBar,
   closeModal,
   setShowBuySearchBar,
+
 }) => {
   const [trendingTokens, setTrendingTokens] = useState([]);
 
@@ -55,14 +56,7 @@ const BuyTokenList = ({
   }, []);
 
   // Load selected token from localStorage (if available)
-  const savedToken = localStorage.getItem("buySelectedToken");
-  const buySelectedToken = savedToken ? JSON.parse(savedToken) : null;
-
-  const selectToken = (token) => {
-    onSelectToken(token);
-    // Save the selected token in localStorage
-    localStorage.setItem("buySelectedToken", JSON.stringify(token));
-  };
+  
 
   return (
     <div className="flex justify-center items-center">
@@ -147,7 +141,7 @@ const BuyTokenList = ({
                 <div
                   key={i}
                   onClick={() => {
-                    setBuySelectedToken(token);
+                    setBuyToken(token);
                     setShowSearchBar(false);
                   }}
                   className="flex justify-between sm:mt-5 mt-4 cursor-pointer"

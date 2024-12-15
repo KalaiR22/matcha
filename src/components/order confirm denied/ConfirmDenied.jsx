@@ -13,7 +13,7 @@ const ConfirmDenied = ({ setShowPlaceOrder }) => {
   }
   return (
     <div className="flex justify-center items-center h-screen bg-black p-4 ">
-      <div className="bg-white h-[350px] border rounded-[1.625rem] w-full absolute sm:h-[400px] sm:w-[400px] flex flex-col justify-center items-center gap-10">
+      <div className="bg-white h-[350px] border px-8 rounded-[1.625rem] w-full absolute sm:h-[400px] sm:w-[400px] flex flex-col justify-center items-center gap-10">
         <div className="absolute z-0 ">
           <div class="fzfup1j fzfup1f"></div>
           <div class="fzfup1k fzfup1g"></div>
@@ -43,14 +43,14 @@ const ConfirmDenied = ({ setShowPlaceOrder }) => {
           </p>
         </div>
 
-        <div className="pl-[3rem] pr-[3rem] mt-2 w-full">
+        
           <button
             onClick={()=> setShowPlaceOrder(false)}
-            className="bg-[#17171c] sm:mt-2 sm:text-[16px] font-[500] border rounded-[1.625rem] shadow-[0_1px_2px_rgba(0,0,0,0.2)] w-full flex items-center justify-center h-12 text-[15px] text-white"
+            className="bg-[#17171c] sm:mx-[3rem] z-50 sm:mt-4 sm:text-[16px] mt-2 font-[500] border rounded-[1.625rem] shadow-[0_1px_2px_rgba(0,0,0,0.2)] w-full flex items-center justify-center h-12 text-[15px] text-white"
           >
             Back
           </button>
-        </div>
+
       </div>
     </div>
   );

@@ -35,7 +35,7 @@ app.get("/api/swap-quote", (req, res) => {
 
 app.get("/api/get-price", async (req, res) => {
   try {
-    const response = await axios.get(`https://api.0x.org/swap/permit2/price`, {
+    const response = await axios.get(`https://matcha.xyz/api/gasless/price`, {
       params: req.query,
       headers: {
         "0x-api-key": "704a6d41-1233-4739-904f-1079bf2d892f",
@@ -49,6 +49,40 @@ app.get("/api/get-price", async (req, res) => {
     res.status(error.response?.status || 500).json({ error: error.message });
   }
 });
+app.get("/api/usd-price", async (req, res) => {
+  try {
+    const response = await axios.get(`https://matcha.xyz/api/price/usd`, {
+      params: req.query,
+      headers: {
+        "0x-api-key": "704a6d41-1233-4739-904f-1079bf2d892f",
+        "0x-version": "v2",
+        "Content-Type": "application/json",
+      },
+    });
+    res.json(response.data);
+  } catch (error) {
+    console.error("API Proxy Error:", error.message);
+    res.status(error.response?.status || 500).json({ error: error.message });
+  }
+});
+
+
+// app.get("/api/get-price", async (req, res) => {
+//   try {
+//     const response = await axios.get(`https://api.0x.org/swap/permit2/price`, {
+//       params: req.query,
+//       headers: {
+//         "0x-api-key": "704a6d41-1233-4739-904f-1079bf2d892f",
+//         "0x-version": "v2",
+//         "Content-Type": "application/json",
+//       },
+//     });
+//     res.json(response.data);
+//   } catch (error) {
+//     console.error("API Proxy Error:", error.message);
+//     res.status(error.response?.status || 500).json({ error: error.message });
+//   }
+// });
 
 
 app.listen(PORT, () => {

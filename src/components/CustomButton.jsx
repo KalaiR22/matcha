@@ -49,7 +49,7 @@ export const CustomButton = ({ sellToken, sellInput, setShowPlaceOrder }) => {
                 userSelect: "none",
               },
             })}
-            className="w-full py-4 px-2"
+            className="w-full py-2.5 px-2"
           >
             {(() => {
               if (!connected) {

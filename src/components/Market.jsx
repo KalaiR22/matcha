@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { LuSettings } from "react-icons/lu";
 import { IoMdArrowDown } from "react-icons/io";
 import { CustomButton } from './CustomButton';
@@ -37,8 +37,19 @@ const Market = () => {
   const [loading, setLoading] = useState(false);
   const [autoShowSecondBuy, setAutoShowSecondBuy] = useState(false);
   const [autoShowSecondSell, setAutoShowSecondSell] = useState(false);
-  const storedToken = localStorage.getItem("sellSelectedToken");
-  const TokenJsonData = JSON.parse(storedToken);
+  const storedToken = localStorage.getItem("sellToken");
+  const TokenJsonData = storedToken ? JSON.parse(storedToken) : null;
+  const [sellToken, setsellToken] = useState(null);
+   const [buyToken, setbuyToken] = useState({
+     address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+     chainId: "1",
+     chainName: "Ethereum",
+     decimals: "18",
+     logo: "https://token-registry.s3.amazonaws.com/icons/tokens/ethereum/64/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png",
+     name: "Ethereum",
+     prominentColor: "#627EEA",
+     symbol: "ETH",
+   });
   const [balance, setBalance] = useState();
   const { address: accountAddress } = useAccount();
   const [numberType, setNumberType] = useState(false);
@@ -46,25 +57,103 @@ const Market = () => {
   const [price, setPrice] = useState(null);
   const [buyTokenTax, setBuyTokenTax] = useState(null);
   const [sellTokenTax, setSellTokenTax] = useState(null);
+
+   const [prices, setPrices] = useState([]);
+
   
-  const [buyToken, setBuyToken] = useState(() => {
-    return JSON.parse(localStorage.getItem("buySelectedToken")) || {};
-  });
-  const [sellToken, setSellToken] = useState(() => {
-    return JSON.parse(localStorage.getItem("sellSelectedToken")) || {};
-  });
+
+  const [liquidityAvailable, setLiquidityAvailable] = useState(false)
 
   // const account = useAccount();
   const [walletAddress, setWalletAddress] = useState(""); // Replace with dynamic wallet address
-    const taker = walletAddress;
-  const parsedSellAmount = sellInputValue
-    ? parseUnits(sellInputValue, sellToken.decimals).toString()
-    : undefined;
+  const taker = walletAddress;
+const parsedSellAmount = useMemo(() => {
+  if (sellInputValue) {
+    const decimalPlaces = sellInputValue.split(".")[1]?.length || 0;
 
-  const parsedBuyAmount = buyInputValue
-    ? parseUnits(buyInputValue, buyToken.decimals).toString()
-    : undefined;
-  
+    // Instead of setting state inside this calculation, return undefined or handle differently
+    if (decimalPlaces > (sellToken?.decimals || 18)) {
+      // Log error instead of setting state to prevent re-renders
+      console.error(
+        `Fractional component exceeds decimals (${sellToken?.decimals}).`
+      );
+      return undefined;
+    }
+
+    try {
+      return parseUnits(sellInputValue, sellToken?.decimals).toString();
+    } catch (error) {
+      console.error("Error parsing sell amount:", error);
+      return undefined;
+    }
+  }
+  return undefined;
+}, [sellInputValue, sellToken?.decimals]);
+
+
+const parsedBuyAmount = useMemo(() => {
+  if (buyInputValue && buyToken?.decimals) {
+    try {
+      // Truncate to token's decimal precision
+      const truncatedValue = Number(buyInputValue).toFixed(buyToken.decimals);
+      return parseUnits(truncatedValue, buyToken.decimals).toString();
+    } catch (error) {
+      console.error("Error parsing buy amount:", error);
+      return undefined;
+    }
+  }
+  return undefined;
+}, [buyInputValue, buyToken?.decimals]);
+  const inputs =  [
+    { address: sellToken?.address, networkId: sellToken?.chainId },
+    { address: buyToken?.address, networkId: buyToken?.chainId },
+    
+  ];
+
+useEffect(() => {
+  async function fetchPrices() {
+    try {
+      // Define the inputs payload
+      const inputs = [
+        { address: sellToken?.address, networkId: sellToken?.chainId },
+        { address: buyToken?.address, networkId: buyToken?.chainId },
+      ];
+
+      // Encode the inputs as a JSON string and then URL encode it
+      const encodedInputs = encodeURIComponent(JSON.stringify(inputs));
+
+      // Construct the API URL with the encoded inputs
+      const url = `/api/price/usd?inputs=${encodedInputs}`;
+      console.log("Fetching from URL:", url);
+
+      // Fetch data from the API
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Error fetching prices");
+      }
+
+      const data = await response.json();
+      console.log("API Response:", data);
+      setPrices(data); // Assuming the API returns an array of prices
+    } catch (err) {
+      console.error("Error fetching prices:", err);
+      setError(err.message);
+    }
+  }
+
+  fetchPrices();
+}, []);
+
+
+
+
 
   const chainId = 8453;
   useEffect(() => {
@@ -81,63 +170,69 @@ const Market = () => {
       tradeSurplusRecipient: FEE_RECIPIENT || "",
     };
 
-    async function fetchSwapQuote() {
-      try {
-        // Validate essential fields before making the request
-        if (!sellToken?.address || !buyToken?.address || !parsedSellAmount) {
-          console.error("Invalid input parameters:", params);
-          setError(["Required fields are missing or invalid"]);
-          return;
-        }
+     const fetchSwapQuote = async () => {
+       
+         console.log(sellToken, buyToken);
 
-        const searchParams = new URLSearchParams(params).toString();
-        const response = await fetch(
-          `http://localhost:3001/api/get-price?${searchParams}`,
-          {
-            headers: {
-              "0x-api-key": "704a6d41-1233-4739-904f-1079bf2d892f",
-              "0x-version": "v2",
-              "Content-Type": "application/json",
-            },
-          }
-        );
+         // Validate essential fields before making the request
+         if (!sellToken?.address || !buyToken?.address || !parsedSellAmount) {
+           console.error("Invalid input parameters:", params);
+           setError(["Required fields are missing or invalid"]);
+           return;
+         }
+         try{
+         const searchParams = new URLSearchParams(params).toString();
+         const response = await fetch(
+           `http://localhost:3001/api/get-price?${searchParams}`,
+           {
+             headers: {
+               "0x-api-key": "704a6d41-1233-4739-904f-1079bf2d892f",
+               "0x-version": "v2",
+               "Content-Type": "application/json",
+             },
+           }
+         );
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error("API Response Error:", errorData);
-          setError([errorData.message || "Invalid input parameters"]);
-          return;
-        }
+         if (!response.ok) {
+           const errorData = await response.json();
+           console.error("API Response Error:", errorData);
+           setError([errorData.message || "Invalid input parameters"]);
+           return;
+         }
 
-        const data = await response.json();
-        console.log("API Data:", data);
+         const data = await response.json();
+         console.log("API Data:", data);
+         setLiquidityAvailable(data?.liquidityAvailable);
+         console.log(liquidityAvailable)
+         if (data?.validationErrors?.length > 0) {
+           setError(
+             data.validationErrors.map(
+               (err) => err.reason || "Validation error"
+             )
+           );
+           return;
+         }
 
-        if (data?.validationErrors?.length > 0) {
-          setError(
-            data.validationErrors.map((err) => err.reason || "Validation error")
-          );
-          return;
-        }
-
-        // Clear errors and update state
-        setError([]);
-        if (data?.buyAmount) {
-          setBuyInputValue(formatUnits(data.buyAmount, buyToken.decimals));
-          setPrice(data);
-        }
-        if (data?.tokenMetadata) {
-          setBuyTokenTax(data.tokenMetadata.buyToken);
-          setSellTokenTax(data.tokenMetadata.sellToken);
-        }
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        setError(["Unexpected error occurred while fetching data"]);
-      }
-    }
-
-    if (sellInputValue) {
-      fetchSwapQuote();
-    }
+         // Clear errors and update state
+         setError([]);
+         if (data?.buyAmount) {
+           setBuyInputValue(formatUnits(data.buyAmount, buyToken.decimals));
+           setPrice(data);
+           setLiquidityAvailable(data?.liquidityAvailable);
+         }
+         if (data?.tokenMetadata) {
+           setBuyTokenTax(data.tokenMetadata.buyToken);
+           setSellTokenTax(data.tokenMetadata.sellToken);
+         }
+       } catch (err) {
+         console.error("Error fetching data:", err);
+         setError(["Unexpected error occurred while fetching data"]);
+       }
+     };
+if (parsedSellAmount) {
+  fetchSwapQuote();
+}
+    
   }, [
     sellToken,
     buyToken,
@@ -147,54 +242,51 @@ const Market = () => {
     sellInputValue,
   ]);
 
+
   const spender = price?.issues?.allowance?.spender || 1;
-  console.log(spender)
+  console.log(spender);
 
   // Read from ERC20, check approval for the determined spender to spend sellToken
   const { data: allowance, refetch } = useReadContract({
-    address: sellToken.address, // Ensure this variable is defined in your scope
+    address: sellToken?.address, // Ensure this variable is defined in your scope
     abi: erc20Abi,
     functionName: "allowance",
     args: [taker, spender], // Ensure `taker` and `spender` are defined in your scope
   });
 
   console.log("checked spender approval");
-  console.log(allowance)
+  console.log(allowance);
   // 2. If no allowance, simulate approve token allowance for the spender
   const { data } = useSimulateContract({
-    address: sellToken.address,
+    address: sellToken?.address,
     abi: erc20Abi,
     functionName: "approve",
     args: [spender, MAX_ALLOWANCE],
   });
   // Define useWriteContract for the 'approve' operation
-  const {
-    data: writeContractResult,
-    writeContractAsync: writeContract,
-    
-  } = useWriteContract({
-    address: sellToken.address,
-    abi: erc20Abi,
-    functionName: "approve",
-    args: [spender, MAX_ALLOWANCE],
-  });
- const { data: approvalReceiptData, isLoading: isApproving } =
-   useWaitForTransactionReceipt({
-     hash: writeContractResult?.hash,
-   });
+  const { data: writeContractResult, writeContractAsync: writeContract } =
+    useWriteContract({
+      address: sellToken?.address,
+      abi: erc20Abi,
+      functionName: "approve",
+      args: [spender, MAX_ALLOWANCE],
+    });
+  const { data: approvalReceiptData, isLoading: isApproving } =
+    useWaitForTransactionReceipt({
+      hash: writeContractResult?.hash,
+    });
 
- // Call `refetch` when the transaction succeeds
- useEffect(() => {
-   if (data) {
-     refetch();
-   }
- }, [data, refetch]);
+  // Call `refetch` when the transaction succeeds
+  useEffect(() => {
+    if (data) {
+      refetch();
+    }
+  }, [data, refetch]);
 
-
-const clearData = () =>{
-  setSellInputValue("");
-  setBuyInputValue("");
-}
+  const clearData = () => {
+    setSellInputValue("");
+    setBuyInputValue("");
+  };
 
   const [error, setError] = useState(false);
 
@@ -221,22 +313,21 @@ const clearData = () =>{
     }
   }, [showsell]);
 
-  const handleSellInputChange = (e) => {
-    const value = e.target.value;
+const handleSellInputChange = (e) => {
+  const value = e.target.value;
+  const validValue = value.replace(/[^0-9.]/g, "");
 
-    // Allow only valid numbers (with a single dot for decimals)
-    const validValue = value.replace(/[^0-9.]/g, "");
-    if (validValue.split(".").length > 2) return;
+  // Prevent multiple decimal points
+  if (validValue.split(".").length > 2) return;
 
-    // Update sell input value
-    setSellInputValue(validValue);
-    if (validValue == 0) {
-      setBuyInputValue("");
-    }
-    if (buyToken && sellToken && validValue > 0) {
-      //fetchSwapQuote(buyToken, sellToken);
-    }
-  };
+  // Optional: Add decimal place validation
+  const decimalPart = validValue.split(".")[1];
+  if (decimalPart && decimalPart.length > (sellToken?.decimals || 18)) {
+    return; // Don't update if decimal places exceed token's decimals
+  }
+
+  setSellInputValue(validValue);
+};
 
   const handleBuyInputChange = (e) => {
     const value = e.target.value;
@@ -245,24 +336,28 @@ const clearData = () =>{
     setBuyInputValue(validValue);
   };
 
-  const SwapSellBuy = () => {
-    // Temporary variables to store current state values
-    const tempSellInputValue = sellInputValue;
-    const tempBuyInputValue = buyInputValue;
-    const tempSellToken = sellToken;
+const SwapSellBuy = () => {
+  // Prevent swapping if tokens are the same
+  if (sellToken?.address === buyToken?.address) {
+    console.warn("Cannot swap: tokens are the same");
+    return;
+  }
 
-    // Swap input values
-    setSellInputValue(tempBuyInputValue);
-    setBuyInputValue(tempSellInputValue);
+  // Swap tokens
+  const tempToken = { ...sellToken };
+  setsellToken(buyToken);
+  setbuyToken(tempToken);
 
-    // Swap tokens
-    setSellToken(buyToken); // Set sell token to current buy token
-    setBuyToken(tempSellToken); // Set buy token to current sell token
+  // Swap input values
+  if (sellInputValue || buyInputValue) {
+    setSellInputValue(buyInputValue || "");
+    setBuyInputValue(sellInputValue || "");
+  }
 
-    // Toggle visibility of Sell and Buy sections if needed
-    setShowSell((prev) => !prev);
-    setShowBuy((prev) => !prev);
-  };
+  // Toggle visibility of sections
+  setShowSell(!showsell);
+  setShowBuy(!showBuy);
+};
 
   const handleKeyPress = (e) => {
     if (e.key === "-") {
@@ -314,14 +409,13 @@ const clearData = () =>{
     };
   }, []);
 
-
-   const handleReviewOrder = () => {
-     setShowPlaceOrder(true);
-   };
+  const handleReviewOrder = () => {
+    setShowPlaceOrder(true);
+  };
 
   useEffect(() => {
     console.log(sellInputValue);
-    console.log(buyToken, sellToken);
+    console.log(sellToken, buyToken);
     if (sellInputValue > 0 && buyToken && sellToken) {
       console.log(sellInputValue);
       console.log(buyToken, sellToken);
@@ -329,133 +423,78 @@ const clearData = () =>{
     }
   }, [sellInputValue, buyToken, sellToken]);
 
-  useEffect(() => {
-    const params = {
-      chainId: chainId,
-      sellToken: sellToken.address,
-      buyToken: buyToken.address,
-      sellAmount: parsedSellAmount,
-      buyAmount: parsedBuyAmount,
-      taker: walletAddress,
-      swapFeeRecipient: FEE_RECIPIENT,
-      swapFeeBps: AFFILIATE_FEE,
-      swapFeeToken: buyToken.address,
-      tradeSurplusRecipient: FEE_RECIPIENT,
-    };
 
-    async function main() {
-      try {
-        const response = await fetch(`/api/get-price?${qs.stringify(params)}`);
-        const data = await response.json();
+  const fetchTokenBalances = async () => {
+    if (!walletAddress || !sellToken?.address || !buyToken?.address) {
+      console.error("Wallet address or token addresses are missing.");
+      return;
+    }
 
-        if (data?.validationErrors?.length > 0) {
-          // error for sellAmount too low
-          setError(data.validationErrors);
-        } else {
-          setError([]);
-        }
-        if (data.buyAmount) {
-          setBuyAmount(formatUnits(data.buyAmount, buyToken.decimals));
-          setPrice(data);
-        }
-        // Set token tax information
-        if (data?.tokenMetadata) {
-          setBuyTokenTax(data.tokenMetadata.buyToken);
-          setSellTokenTax(data.tokenMetadata.sellToken);
-        }
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        setError(["Failed to fetch data"]);
+    try {
+      console.log("Wallet Address:", walletAddress);
+      console.log("Sell Token Address:", sellToken?.address);
+      console.log("Buy Token Address:", buyToken?.address);
+
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+      let sellBalance = ethers.BigNumber.from(0);
+      let buyBalance = ethers.BigNumber.from(0);
+
+      // Handle Sell Token Balance
+      if (sellToken.address === "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee") {
+        sellBalance = await provider.getBalance(walletAddress);
+      } else {
+        const sellTokenContract = new ethers.Contract(
+          sellToken.address,
+          tokenabi,
+          provider
+        );
+        sellBalance = await sellTokenContract.balanceOf(walletAddress);
       }
+
+      // Handle Buy Token Balance
+      if (buyToken?.address === "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee") {
+        buyBalance = await provider.getBalance(walletAddress);
+      } else {
+        const buyTokenContract = new ethers.Contract(
+          buyToken.address,
+          tokenabi,
+          provider
+        );
+        buyBalance = await buyTokenContract.balanceOf(walletAddress);
+      }
+
+      console.log("Sell Balance (Raw):", sellBalance.toString());
+      console.log("Buy Balance (Raw):", buyBalance.toString());
+
+      // Format balances
+      const formattedSellBalance =
+        sellToken?.address === "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+          ? ethers.utils.formatEther(sellBalance)
+          : formatUnits(sellBalance, sellToken?.decimals);
+
+      const formattedBuyBalance =
+        buyToken?.address === "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+          ? ethers.utils.formatEther(buyBalance)
+          : formatUnits(buyBalance, buyToken?.decimals);
+
+      setBalance({
+        sellTokenBalance: formattedSellBalance,
+        buyTokenBalance: formattedBuyBalance,
+      });
+    } catch (error) {
+      console.error("Error fetching token balances:", error);
     }
+  };
 
-    if (sellInputValue !== "") {
-      main();
+  useEffect(() => {
+    if (walletAddress && sellToken &&  buyToken) {
+      fetchTokenBalances();
     }
-  }, [
-    sellToken.address,
-    buyToken.address,
-    parsedSellAmount,
-    parsedBuyAmount,
-    chainId,
-    sellInputValue,
-    setPrice,
-    FEE_RECIPIENT,
-    AFFILIATE_FEE,
-  ]);
-const fetchTokenBalances = async () => {
-  if (!walletAddress || !sellToken?.address || !buyToken?.address) {
-    console.error("Wallet address or token addresses are missing.");
-    return;
-  }
+  }, [walletAddress, sellToken, buyToken]);
 
-  try {
-    console.log("Wallet Address:", walletAddress);
-    console.log("Sell Token Address:", sellToken?.address);
-    console.log("Buy Token Address:", buyToken?.address);
-
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-
-    let sellBalance = ethers.BigNumber.from(0);
-    let buyBalance = ethers.BigNumber.from(0);
-
-    // Handle Sell Token Balance
-    if (sellToken.address === "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee") {
-      sellBalance = await provider.getBalance(walletAddress);
-    } else {
-      const sellTokenContract = new ethers.Contract(
-        sellToken.address,
-        tokenabi,
-        provider
-      );
-      sellBalance = await sellTokenContract.balanceOf(walletAddress);
-    }
-
-    // Handle Buy Token Balance
-    if (buyToken.address === "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee") {
-      buyBalance = await provider.getBalance(walletAddress);
-    } else {
-      const buyTokenContract = new ethers.Contract(
-        buyToken.address,
-        tokenabi,
-        provider
-      );
-      buyBalance = await buyTokenContract.balanceOf(walletAddress);
-    }
-
-    console.log("Sell Balance (Raw):", sellBalance.toString());
-    console.log("Buy Balance (Raw):", buyBalance.toString());
-
-    // Format balances
-    const formattedSellBalance =
-      sellToken.address === "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
-        ? ethers.utils.formatEther(sellBalance)
-        : formatUnits(sellBalance, sellToken.decimals);
-
-    const formattedBuyBalance =
-      buyToken.address === "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
-        ? ethers.utils.formatEther(buyBalance)
-        : formatUnits(buyBalance, buyToken.decimals);
-
-    setBalance({
-      sellTokenBalance: formattedSellBalance,
-      buyTokenBalance: formattedBuyBalance,
-    });
-  } catch (error) {
-    console.error("Error fetching token balances:", error);
-  }
-};
-
-
-
-useEffect(() => {
-  if (walletAddress && sellToken && buyToken) {
-    fetchTokenBalances();
-  }
-}, [walletAddress, sellToken, buyToken]);
-
-
-console.log(walletAddress)
+  const isInSufficientBalance =
+    parseFloat(sellInputValue) > parseFloat(balance?.sellTokenBalance);
 
   return (
     <div className="w-full min-h-screen">
@@ -468,15 +507,15 @@ console.log(walletAddress)
             sellInpValue={sellInputValue}
             walletAddress={walletAddress}
             clearData={clearData}
+            sellToken={sellToken}
+            buyToken={buyToken}
           />
         )}
-        <div className="bg-white h-[350px] border rounded-[1.625rem] w-full sm:h-[410px] sm:w-[450px]">
+        <div className="bg-white h-[350px] border rounded-[1.625rem] w-full sm:h-[395px] sm:w-[450px]">
           <div className="flex justify-between pl-[1.25rem] py-1 pr-[0.75rem] border-b items-center sm:py-3">
             <div className="flex gap-[1.5rem] font-medium sm:text-[17px] text-xs ">
               <button className="text-activeHead">Market</button>
-             
             </div>
-           
           </div>
 
           <div>
@@ -486,12 +525,14 @@ console.log(walletAddress)
                   Sell
                 </p>
                 {balance?.sellTokenBalance && (
-                  <p className="text-inactiveHead">
-                    Balance: {balance?.sellTokenBalance}
+                  <p className="text-inactiveHead text-sm font-medium whitespace-nowrap text-ellipsis w-32 overflow-hidden">
+                    Balance:{" "}
+                    { balance?.sellTokenBalance
+                      }
                   </p>
                 )}
               </div>
-              {showsell ? (
+              
                 <SellSection
                   setShowSearchBar={() => setShowSellSearchBar(true)}
                   autoShowSecondSell={autoShowSecondSell}
@@ -500,14 +541,12 @@ console.log(walletAddress)
                   setBuyInputValue={setBuyInputValue}
                   balance={balance}
                   clearData={clearData}
+                  sellToken={sellToken}
+                  setSellToken={setsellToken}
+                  SwapSellBuy={SwapSellBuy}
+                  showsell={showsell}
                 />
-              ) : (
-                <BuySection
-                  setShowSearchBar={() => setShowBuySearchBar(true)}
-                  autoShowSecondBuy={autoShowSecondBuy}
-                  selectedToken={selectedToken}
-                />
-              )}
+              
 
               <div className="sell-input mb-[0.3rem] flex justify-between items-center">
                 <input
@@ -516,7 +555,7 @@ console.log(walletAddress)
                   className="pr-4 overflow-ellipsis w-[75%] sm:text-[25px] font-semibold focus:outline-none text-[20px]"
                   value={sellInputValue}
                   onChange={(e) => handleSellInputChange(e)}
-                  onKeyPress={handleKeyPress}
+                
                 />
               </div>
             </div>
@@ -546,27 +585,28 @@ console.log(walletAddress)
                 </p>
 
                 {balance?.buyTokenBalance && (
-                  <p className="text-inactiveHead">
-                    Balance: {balance?.buyTokenBalance}
+                  <p className="text-inactiveHead text-sm font-medium whitespace-nowrap text-ellipsis w-32 overflow-hidden">
+                    Balance:{" "}
+                    { balance?.buyTokenBalance}
                   </p>
                 )}
               </div>
-              {showBuy ? (
+
+              
                 <BuySection
                   setShowSearchBar={() => setShowBuySearchBar(true)}
                   autoShowSecondBuy={autoShowSecondBuy}
-                />
-              ) : (
-                <SellSection
-                  setShowSearchBar={() => setShowSellSearchBar(true)}
-                  autoShowSecondSell={autoShowSecondSell}
                   sellInputValue={sellInputValue}
                   setSellInputValue={setSellInputValue}
                   setBuyInputValue={setBuyInputValue}
                   balance={balance}
                   clearData={clearData}
+                  setBuyToken={setbuyToken}
+                  buyToken={buyToken}
+                  setbuyToken={setbuyToken}
+                  showsell={false}
                 />
-              )}
+             
 
               <div className="buy-input mb-[0.3rem] flex justify-between items-center">
                 <input
@@ -575,7 +615,7 @@ console.log(walletAddress)
                   className="pr-4 overflow-ellipsis w-[75%] sm:text-[25px] font-semibold focus:outline-none text-[20px]"
                   value={buyInputValue}
                   onChange={handleBuyInputChange}
-                  onKeyPress={handleKeyPress}
+                 
                   readOnly
                 />
               </div>
@@ -593,57 +633,75 @@ console.log(walletAddress)
 
             {/* Divider */}
             <div className="relative w-full h-[1px] bg-[#f1f2f4]"></div>
-            {!buyInputValue && walletAddress && (
+            {!buyInputValue &&
+              walletAddress &&
+              !isInSufficientBalance &&
+              !liquidityAvailable && (
+                <div className="mx-2 my-3">
+                  <button
+                    disabled
+                    className="bg-[#f1f2f4] text-[#5e6773]  font-medium  border-[#d5d9dd] py-2.5  rounded-full  w-full "
+                  >
+                    Review Order
+                  </button>
+                </div>
+              )}
+
+            {isInSufficientBalance && (
               <div className="mx-2 my-3">
                 <button
                   disabled
                   className="bg-[#f1f2f4] text-[#5e6773]  font-medium  border-[#d5d9dd] py-2.5  rounded-full  w-full "
                 >
-                  Review Order
+                  Insufficient Balance
                 </button>
               </div>
             )}
             {!walletAddress && <CustomButton />}
-            {sellInputValue > 0 && buyInputValue && walletAddress && (
-              <div className="px-[1.5rem] py-3 justify-center flex items-center">
-                {allowance === BigInt(0) ? (
-                  <button
-                    type="button"
-                    className="bg-gray-800 text-white py-2.5 px-4 rounded-full w-full"
-                    onClick={async () => {
-                      try {
-                        await writeContract({
-                          abi: erc20Abi,
-                          address: sellToken.address,
-                          functionName: "approve",
-                          args: [spender, MAX_ALLOWANCE],
-                        });
-                        console.log("Approving spender to spend sell token");
+            {sellInputValue > 0 &&
+              buyInputValue &&
+              walletAddress &&
+              !isInSufficientBalance &&
+              liquidityAvailable && (
+                <div className="px-[1.5rem] py-3 justify-center flex items-center">
+                  {allowance === BigInt(0) ? (
+                    <button
+                      type="button"
+                      className="bg-gray-800 text-white py-2.5 px-4 rounded-full w-full"
+                      onClick={async () => {
+                        try {
+                          await writeContract({
+                            abi: erc20Abi,
+                            address: sellToken.address,
+                            functionName: "approve",
+                            args: [spender, MAX_ALLOWANCE],
+                          });
+                          console.log("Approving spender to spend sell token");
 
-                        // Refetch the allowance after approval
-                        refetch();
-                      } catch (error) {
-                        console.error("Error approving spender:", error);
-                      }
-                    }}
-                  >
-                    {isApproving ? "Approving…" : "Approve"}
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleReviewOrder}
-                    className="bg-gray-800 text-white py-2.5 px-4 rounded-full w-full"
-                    type="button"
-                  >
-                    {/* {account.displayName}
+                          // Refetch the allowance after approval
+                          refetch();
+                        } catch (error) {
+                          console.error("Error approving spender:", error);
+                        }
+                      }}
+                    >
+                      {isApproving ? "Approving…" : "Approve"}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleReviewOrder}
+                      className="bg-gray-800 text-white py-2.5 px-4 rounded-full w-full"
+                      type="button"
+                    >
+                      {/* {account.displayName}
                       {account.displayBalance
                         ? ` (${account.displayBalance})`
                         : ''} */}
-                    Review order
-                  </button>
-                )}
-              </div>
-            )}
+                      Review order
+                    </button>
+                  )}
+                </div>
+              )}
 
             {/* {price?.issues.allowance === null&&   <button
           type="button"
