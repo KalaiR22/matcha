@@ -24,7 +24,7 @@ const BuyTokenList = ({
   setShowSearchBar,
   closeModal,
   setShowBuySearchBar,
-
+  handleBuySelectToken,handleSelect
 }) => {
   const [trendingTokens, setTrendingTokens] = useState([]);
 
@@ -56,7 +56,9 @@ const BuyTokenList = ({
   }, []);
 
   // Load selected token from localStorage (if available)
-  
+  handleSelect=(token)=>{
+ handleBuySelectToken(token);
+  }
 
   return (
     <div className="flex justify-center items-center">
@@ -141,7 +143,7 @@ const BuyTokenList = ({
                 <div
                   key={i}
                   onClick={() => {
-                    setBuyToken(token);
+                    handleSelect(token);
                     setShowSearchBar(false);
                   }}
                   className="flex justify-between sm:mt-5 mt-4 cursor-pointer"

@@ -110,46 +110,46 @@ const parsedBuyAmount = useMemo(() => {
     
   ];
 
-useEffect(() => {
-  async function fetchPrices() {
-    try {
-      // Define the inputs payload
-      const inputs = [
-        { address: sellToken?.address, networkId: sellToken?.chainId },
-        { address: buyToken?.address, networkId: buyToken?.chainId },
-      ];
+// useEffect(() => {
+//   async function fetchPrices() {
+//     try {
+//       // Define the inputs payload
+//       const inputs = [
+//         { address: sellToken?.address, networkId: sellToken?.chainId },
+//         { address: buyToken?.address, networkId: buyToken?.chainId },
+//       ];
 
-      // Encode the inputs as a JSON string and then URL encode it
-      const encodedInputs = encodeURIComponent(JSON.stringify(inputs));
+//       // Encode the inputs as a JSON string and then URL encode it
+//       const encodedInputs = encodeURIComponent(JSON.stringify(inputs));
 
-      // Construct the API URL with the encoded inputs
-      const url = `/api/price/usd?inputs=${encodedInputs}`;
-      console.log("Fetching from URL:", url);
+//       // Construct the API URL with the encoded inputs
+//       const url = `/api/price/usd?inputs=${encodedInputs}`;
+//       console.log("Fetching from URL:", url);
 
-      // Fetch data from the API
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+//       // Fetch data from the API
+//       const response = await fetch(url, {
+//         method: "GET",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Error fetching prices");
-      }
+//       if (!response.ok) {
+//         const errorData = await response.json();
+//         throw new Error(errorData.message || "Error fetching prices");
+//       }
 
-      const data = await response.json();
-      console.log("API Response:", data);
-      setPrices(data); // Assuming the API returns an array of prices
-    } catch (err) {
-      console.error("Error fetching prices:", err);
-      setError(err.message);
-    }
-  }
+//       const data = await response.json();
+//       console.log("API Response:", data);
+//       setPrices(data); // Assuming the API returns an array of prices
+//     } catch (err) {
+//       console.error("Error fetching prices:", err);
+//       setError(err.message);
+//     }
+//   }
 
-  fetchPrices();
-}, []);
+//   fetchPrices();
+// }, []);
 
 
 
@@ -359,6 +359,29 @@ const SwapSellBuy = () => {
   setShowBuy(!showBuy);
 };
 
+
+ const handleSellSelectToken = (token) => {
+   if (token.address === buyToken.address) {
+     SwapSellBuy();
+   } else {
+     setsellToken(token);
+   }
+   console.log(sellToken, buyToken);
+   
+   clearData();
+ };
+
+  const handleBuySelectToken = (token) => {
+    if (token.address === sellToken.address) {
+      SwapSellBuy();
+    } else {
+      setbuyToken(token);
+    }
+    console.log(sellToken, buyToken);
+
+    clearData();
+  };
+
   const handleKeyPress = (e) => {
     if (e.key === "-") {
       e.preventDefault();
@@ -526,27 +549,27 @@ const SwapSellBuy = () => {
                 </p>
                 {balance?.sellTokenBalance && (
                   <p className="text-inactiveHead text-sm font-medium whitespace-nowrap text-ellipsis w-32 overflow-hidden">
-                    Balance:{" "}
-                    { balance?.sellTokenBalance
-                      }
+                    Balance: {balance?.sellTokenBalance}
                   </p>
                 )}
               </div>
-              
-                <SellSection
-                  setShowSearchBar={() => setShowSellSearchBar(true)}
-                  autoShowSecondSell={autoShowSecondSell}
-                  sellInputValue={sellInputValue}
-                  setSellInputValue={setSellInputValue}
-                  setBuyInputValue={setBuyInputValue}
-                  balance={balance}
-                  clearData={clearData}
-                  sellToken={sellToken}
-                  setSellToken={setsellToken}
-                  SwapSellBuy={SwapSellBuy}
-                  showsell={showsell}
-                />
-              
+
+              <SellSection
+                setShowSearchBar={() => setShowSellSearchBar(true)}
+                autoShowSecondSell={autoShowSecondSell}
+                sellInputValue={sellInputValue}
+                setSellInputValue={setSellInputValue}
+                setBuyInputValue={setBuyInputValue}
+                balance={balance}
+                clearData={clearData}
+                sellToken={sellToken}
+                setSellToken={setsellToken}
+                SwapSellBuy={SwapSellBuy}
+                showsell={showsell}
+                buyToken={buyToken}
+                setbuyToken={setbuyToken}
+                handleSellSelectToken={handleSellSelectToken}
+              />
 
               <div className="sell-input mb-[0.3rem] flex justify-between items-center">
                 <input
@@ -555,7 +578,6 @@ const SwapSellBuy = () => {
                   className="pr-4 overflow-ellipsis w-[75%] sm:text-[25px] font-semibold focus:outline-none text-[20px]"
                   value={sellInputValue}
                   onChange={(e) => handleSellInputChange(e)}
-                
                 />
               </div>
             </div>
@@ -586,27 +608,25 @@ const SwapSellBuy = () => {
 
                 {balance?.buyTokenBalance && (
                   <p className="text-inactiveHead text-sm font-medium whitespace-nowrap text-ellipsis w-32 overflow-hidden">
-                    Balance:{" "}
-                    { balance?.buyTokenBalance}
+                    Balance: {balance?.buyTokenBalance}
                   </p>
                 )}
               </div>
 
-              
-                <BuySection
-                  setShowSearchBar={() => setShowBuySearchBar(true)}
-                  autoShowSecondBuy={autoShowSecondBuy}
-                  sellInputValue={sellInputValue}
-                  setSellInputValue={setSellInputValue}
-                  setBuyInputValue={setBuyInputValue}
-                  balance={balance}
-                  clearData={clearData}
-                  setBuyToken={setbuyToken}
-                  buyToken={buyToken}
-                  setbuyToken={setbuyToken}
-                  showsell={false}
-                />
-             
+              <BuySection
+                setShowSearchBar={() => setShowBuySearchBar(true)}
+                autoShowSecondBuy={autoShowSecondBuy}
+                sellInputValue={sellInputValue}
+                setSellInputValue={setSellInputValue}
+                setBuyInputValue={setBuyInputValue}
+                balance={balance}
+                clearData={clearData}
+                setBuyToken={setbuyToken}
+                buyToken={buyToken}
+                setbuyToken={setbuyToken}
+                showsell={false}
+                handleBuySelectToken={handleBuySelectToken}
+              />
 
               <div className="buy-input mb-[0.3rem] flex justify-between items-center">
                 <input
@@ -615,7 +635,6 @@ const SwapSellBuy = () => {
                   className="pr-4 overflow-ellipsis w-[75%] sm:text-[25px] font-semibold focus:outline-none text-[20px]"
                   value={buyInputValue}
                   onChange={handleBuyInputChange}
-                 
                   readOnly
                 />
               </div>

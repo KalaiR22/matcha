@@ -11,16 +11,14 @@ const BuySection = ({
   clearData,
   setBuyToken,
   buyToken,
-  buySelectedToken, setBuySelectedToken, showsell
+  buySelectedToken,
+  setBuySelectedToken,
+  showsell,
+  handleBuySelectToken,
 }) => {
   const [showSecondBuy, setShowSecondBuy] = useState(false);
- 
+
   const [showSearchBar, setShowSearchBar] = useState(false);
-
- 
- 
- 
-
 
   return (
     <div>
@@ -59,6 +57,7 @@ const BuySection = ({
             setBuySelectedToken={setBuySelectedToken}
             setShowSearchBar={setShowSearchBar}
             setBuyToken={setBuyToken}
+            handleBuySelectToken={handleBuySelectToken}
           />
         </div>
       )}

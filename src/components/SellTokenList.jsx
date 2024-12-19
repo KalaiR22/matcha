@@ -23,7 +23,12 @@ const addresses = [
 const SellTokenList = ({
   setShowSearchBar,
   closeModal,
-  setSellToken, clearData
+  setSellToken,
+  clearData,
+  setbuyToken,
+  sellToken,
+  buyToken,
+  handleSellSelectToken,
 }) => {
   const [trendingTokens, setTrendingTokens] = useState([]);
 
@@ -56,12 +61,22 @@ const SellTokenList = ({
 
   // Sync selected token with localStorage
 
- const handleSelectToken = (token) => {
-  setSellToken(token)
-  setShowSearchBar(false);
-  clearData()
- }
-
+  //  const handleSelectToken = (token) => {
+  //   if (token.address===buyToken.address){
+  //     const tempToken = buyToken;
+  //     setbuyToken(token);
+  //     setSellToken(tempToken);
+  //   }else
+  //  { setSellToken(token)
+  //   }
+  //   console.log(sellToken,buyToken)
+  //   setShowSearchBar(false);
+  //   clearData();
+  //  }
+  const handleSelect = (token) =>{
+    handleSellSelectToken(token)
+    setShowSearchBar(false)
+  }
   return (
     <div className="flex justify-center items-center">
       <div className="bg-white w-4/5 h-[410px] sm:h-[450px] sm:w-[450px] border rounded-[1.625rem] sm:py-3 py-2 justify-center overflow-hidden">
@@ -120,7 +135,8 @@ const SellTokenList = ({
                 <button
                   key={i}
                   className="flex bg-[#f1f2f4] text-black text-[11px] font-[500] sm:py-[.35rem] rounded-[1.625rem] sm:px-[.45rem] py-[3px] px-[5px]"
-                  onClick={() => handleSelectToken(token)} // Use the updated function
+                  onClick={() => handleSelect(token)
+                  } // Use the updated function
                 >
                   <img
                     src={token.logo}
@@ -144,7 +160,7 @@ const SellTokenList = ({
               {trendingTokens.map((token, i) => (
                 <div
                   key={i}
-                  onClick={() => handleSelectToken(token)} // Use the updated function
+                  onClick={() => handleSelect(token)} // Use the updated function
                   className="flex justify-between sm:mt-5 mt-4 cursor-pointer"
                 >
                   <div className="flex gap-2">

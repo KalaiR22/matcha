@@ -11,18 +11,18 @@ const SellSection = ({
   clearData,
   setSellToken,
   sellToken,
-   SwapSellBuy,
-   showsell
+  SwapSellBuy,
+  showsell,
+  buyToken,
+  setbuyToken,
+  handleSellSelectToken,
 }) => {
   const [showSearchBar, setShowSearchBar] = useState(false);
 
   const [showSecondSell, setShowSecondSell] = useState(autoShowSecondSell);
-    const [buySelectedToken, setBuySelectedToken] = useState(null);
- 
- console.log(sellToken)
+  const [buySelectedToken, setBuySelectedToken] = useState(null);
 
-
-  
+  console.log(sellToken);
 
   return (
     <div>
@@ -45,18 +45,17 @@ const SellSection = ({
               />
             ))}
           </div>
-         
-            <div className="flex justify-end gap-[0.375rem] items-center">
-              {["Max"].map((label) => (
-                <button
-                  key={label}
-                  className="bg-[#f1f2f4] text-[#17171c] sm:text-[14px] text-xs font-[500] py-[.30rem] opacity-[0.5] rounded-[1.625rem] border px-[.75rem] border-[#d5d9dd]"
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          
+
+          <div className="flex justify-end gap-[0.375rem] items-center">
+            {["Max"].map((label) => (
+              <button
+                key={label}
+                className="bg-[#f1f2f4] text-[#17171c] sm:text-[14px] text-xs font-[500] py-[.30rem] opacity-[0.5] rounded-[1.625rem] border px-[.75rem] border-[#d5d9dd]"
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
       ) : (
         <div className="flex justify-between">
@@ -83,20 +82,19 @@ const SellSection = ({
                 clear
               </button>
             )}
-          
-              <div className="flex justify-end gap-[0.375rem] items-center">
-                {["Max"].map((label) => (
-                  <button
-                    key={label}
-                    disabled={!balance?.sellTokenBalance}
-                    onClick={() => setSellInputValue(balance?.sellTokenBalance)}
-                    className="bg-[#f1f2f4] text-[#17171c] sm:text-[14px] text-xs font-[500] py-[.30rem]  rounded-[1.625rem] border px-[.75rem] border-[#d5d9dd]"
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-          
+
+            <div className="flex justify-end gap-[0.375rem] items-center">
+              {["Max"].map((label) => (
+                <button
+                  key={label}
+                  disabled={!balance?.sellTokenBalance}
+                  onClick={() => setSellInputValue(balance?.sellTokenBalance)}
+                  className="bg-[#f1f2f4] text-[#17171c] sm:text-[14px] text-xs font-[500] py-[.30rem]  rounded-[1.625rem] border px-[.75rem] border-[#d5d9dd]"
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -108,6 +106,10 @@ const SellSection = ({
             SwapSellBuy={SwapSellBuy}
             setSellToken={setSellToken}
             clearData={clearData}
+            sellToken={sellToken}
+            buyToken={buyToken}
+            setbuyToken={setbuyToken}
+            handleSellSelectToken={handleSellSelectToken}
           />
         </div>
       )}
