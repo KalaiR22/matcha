@@ -65,6 +65,15 @@ app.get("/api/usd-price", async (req, res) => {
     res.status(error.response?.status || 500).json({ error: error.message });
   }
 });
+const allowedOrigins = ["http://localhost:3000"]; // Adjust for your frontend URL
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+  }
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  next();
+});
 
 
 // app.get("/api/get-price", async (req, res) => {

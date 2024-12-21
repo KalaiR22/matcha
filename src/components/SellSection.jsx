@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import SellTokenList from "./SellTokenList";
+import options from "../constants";
 
 const SellSection = ({
   autoShowSecondSell,

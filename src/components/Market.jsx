@@ -110,46 +110,55 @@ const parsedBuyAmount = useMemo(() => {
     
   ];
 
-// useEffect(() => {
-//   async function fetchPrices() {
-//     try {
-//       // Define the inputs payload
-//       const inputs = [
-//         { address: sellToken?.address, networkId: sellToken?.chainId },
-//         { address: buyToken?.address, networkId: buyToken?.chainId },
-//       ];
+  
+useEffect(() => {
+  async function fetchPrices() {
+    try {
+      const inputs = [
+        { "address": sellToken.address, "networkId": Number(sellToken.chainId) },
+        { "address": buyToken.address, "networkId": Number(buyToken.chainId) },
+      ];
 
-//       // Encode the inputs as a JSON string and then URL encode it
-//       const encodedInputs = encodeURIComponent(JSON.stringify(inputs));
+      // Construct the query parameter manually to avoid URL encoding
+      const inputsQuery = `[${inputs
+        .map(
+          (input) =>
+            `{"address":"${input.address}","networkId":${input.networkId}}`
+        )
+        .join(",")}]`;
 
-//       // Construct the API URL with the encoded inputs
-//       const url = `/api/price/usd?inputs=${encodedInputs}`;
-//       console.log("Fetching from URL:", url);
+      // Avoid any automatic URL encoding
+      const url = `/api/usd-price?inputs=${JSON.stringify(inputs)}`;
+      console.log("Fetching from proxy URL:", url);
 
-//       // Fetch data from the API
-//       const response = await fetch(url, {
-//         method: "GET",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//       });
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-//       if (!response.ok) {
-//         const errorData = await response.json();
-//         throw new Error(errorData.message || "Error fetching prices");
-//       }
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Error fetching prices");
+      }
 
-//       const data = await response.json();
-//       console.log("API Response:", data);
-//       setPrices(data); // Assuming the API returns an array of prices
-//     } catch (err) {
-//       console.error("Error fetching prices:", err);
-//       setError(err.message);
-//     }
-//   }
+      const data = await response.json();
+      console.log("Proxy API Response:", data);
+      setPrices(data); // Update based on your API's response structure
+    } catch (err) {
+      console.error("Error fetching prices:", err);
+      setError(err.message);
+    }
+  }
 
-//   fetchPrices();
-// }, []);
+  fetchPrices();
+}, [sellToken, buyToken]);
+
+
+
+
+
 
 
 
